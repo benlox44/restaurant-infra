@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: restaurant-api:latest # Ensure this image is built and available
+          image: restaurant-api:v3 # Ensure this image is built and available
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
