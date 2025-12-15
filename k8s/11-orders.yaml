@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-service
+  namespace: restaurant-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders-service
+  template:
+    metadata:
+      labels:
+        app: orders-service
+    spec:
+      containers:
+        - name: orders-service
+          image: restaurant-orders:latest # Ensure this image is built and available
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50052
+          env:
+            - name: GRPC_PORT
+              value: "50052"
+            - name: MONGO_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: restaurant-config
+                  key: MONGO_DB_NAME
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: restaurant-secrets
+                  key: MONGO_URI
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-service
+  namespace: restaurant-app
+spec:
+  selector:
+    app: orders-service
+  ports:
+    - protocol: TCP
+      port: 50052
+      targetPort: 50052

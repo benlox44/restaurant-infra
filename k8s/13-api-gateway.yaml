@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: restaurant-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: restaurant-api:latest # Ensure this image is built and available
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: restaurant-config
+                  key: FRONTEND_URL
+            - name: AUTH_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: restaurant-config
+                  key: AUTH_SERVICE_URL
+            - name: RESTAURANT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: restaurant-config
+                  key: RESTAURANT_SERVICE_URL
+            - name: PAYMENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: restaurant-config
+                  key: PAYMENT_SERVICE_URL
+            - name: PAYMENT_RETURN_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: restaurant-config
+                  key: PAYMENT_RETURN_URL
+            - name: KAFKA_BROKER
+              valueFrom:
+                configMapKeyRef:
+                  name: restaurant-config
+                  key: KAFKA_BROKER
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-service
+  namespace: restaurant-app
+spec:
+  type: LoadBalancer # Expose externally
+  selector:
+    app: api-gateway
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
