@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: restaurant-auth:latest # Ensure this image is built and available
+          image: restaurant-auth:v2 # Ensure this image is built and available
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 50051
